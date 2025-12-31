@@ -33,10 +33,15 @@ except Exception:
 # nltk sentence tokenizer
 import nltk
 
-try:
-    nltk.data.find("tokenizers/punkt")
-except Exception:
-    nltk.download("punkt")
+def _ensure_nltk_tokenizers():
+    # Streamlit Cloud may not have NLTK data pre-baked; download quietly if missing.
+    for pkg, path in [("punkt", "tokenizers/punkt"), ("punkt_tab", "tokenizers/punkt_tab")]:
+        try:
+            nltk.data.find(path)
+        except Exception:
+            nltk.download(pkg, quiet=True)
+
+_ensure_nltk_tokenizers()
 
 from nltk.tokenize import sent_tokenize
 
