@@ -134,7 +134,9 @@ class LegalSummarizer:
     def __init__(
         self,
         pegasus_local_dir: str = os.path.join("models", "legal-pegasus"),
-        pegasus_fallback: str = "sshleifer/distil-pegasus-xsum-12-1",
+        # Use a small, CDN-cached model that downloads reliably on Streamlit Cloud
+        # (distilbart-cnn is lighter than pegasus and avoids LFS hassles)
+        pegasus_fallback: str = "sshleifer/distilbart-cnn-12-6",
         sbert_model_name: str = "all-MiniLM-L6-v2",
         device: str = None,
     ):
@@ -165,10 +167,17 @@ class LegalSummarizer:
             pegasus_model_dir = pegasus_fallback
             logger.warning(f"Local Pegasus not found; falling back to '{pegasus_fallback}' (internet required)")
 
-        logger.info(f"Loading Pegasus tokenizer/model from {pegasus_model_dir}")
-        self.tokenizer = AutoTokenizer.from_pretrained(pegasus_model_dir)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(pegasus_model_dir).to(self.device)
-        logger.info("Pegasus ready.")
+        try:
+            logger.info(f"Loading summarization tokenizer/model from {pegasus_model_dir}")
+            self.tokenizer = AutoTokenizer.from_pretrained(pegasus_model_dir, use_fast=True)
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(pegasus_model_dir).to(self.device)
+            logger.info("Summarizer model ready.")
+        except OSError as e:
+            # Give a clear message on Streamlit Cloud if model download fails
+            raise OSError(
+                "Model download failed. Please redeploy or restart the app; "
+                "ensure internet access to Hugging Face Hub."
+            ) from e
 
     # ---------------------------
     # PDF extraction + OCR
