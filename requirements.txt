@@ -1,0 +1,9 @@
+streamlit
+sentence-transformers==2.2.2
+transformers==4.57.1
+torch==2.6.0
+PyPDF2
+nltk
+pdf2image
+pytesseract
+pillow

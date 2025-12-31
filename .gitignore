@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environments
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model weights (large)
+models/legal-pegasus/
+lawsummarization_repo/
+archive_old_gist/Gist/summary_model.pkl
+archive_old_gist/Gist/word2vec_model.bin
+
+# Streamlit cache
+.streamlit/cache/
